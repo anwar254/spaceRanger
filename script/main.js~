@@ -1,0 +1,133 @@
+// core variables
+var  widthX = window.innerWidth;
+var  heightY = window.innerHeight-20;
+var enemies, spaceShip;
+
+var enemNo = 20;
+
+var enem = new Array();
+var detectcol;
+
+function Enemies(){
+	this.x = Math.floor(Math.random() * width);
+	this.y = 0;
+	this.dy = random(0.5, 2);
+
+	this.draw = function(){
+		fill(0, 0, 255);
+		ellipse(this.x, this.y, 30, 30);
+
+		//image(enemies, this.x, this.y);
+	}
+
+	this.update = function(){
+		this.y += this.dy;
+	}
+}
+
+var player = {
+	diameter: 30,
+	x : widthX / 2,
+	y : heightY - 20,
+	dy : 1,
+
+	draw : function(){
+		fill(0, 255, 0);
+		ellipse(this.x, this.y, this.diameter, this.diameter);
+	}
+}
+
+
+var shoot = new Array();
+
+// Bullet object
+function Shoot(I){
+	I.active = true;
+	I.x = player.x + player.diameter / 2;
+	I.y = player.y + player.diameter / 2;
+	I.Height= 5;
+	I.Width = 3;
+	I.yVelocity=10;
+	I.inBound = () => {
+		return I.y >=0 && I.y <= window.innerHeight - I.Height;
+	}
+	I.draw = () => {
+		fill(255, 0, 0);
+		ellipse(I.x, I.y, I.Width, I.Height);
+	}
+	I.update = function (){
+		I.activate = I.activate && I.inBound;
+		I.y -= I.yVelocity;
+	}
+
+	return I;
+}
+//initializing p5 js
+function setup(){
+  	var cnv = createCanvas(widthX, heightY);
+  	const bdy =  document.querySelector('body');
+
+  	bdy.style.margin = 0;
+  	bdy.style.padding = 0;
+
+	//enemies = loadImage('../images/enemies.png');
+
+	for (var i=0; i<enemNo; i++) {
+    	enem.push(new Enemies());
+  	}
+
+}
+
+//drawing the shape on the canvas
+function draw() {
+  	background(52);
+		for (var i=0; i<enem.length; i++) {
+    	enem[i].update();
+    	enem[i].draw();
+
+			if(enem[i].y + player.diameter >= height){
+				console.log("Game over");
+			}
+
+  	}
+
+
+	player.draw();
+
+	if(keyIsDown(37)){
+		if(player.x - 10 > 0){
+			player.x -= 10;
+		}else{
+			player.x = 0;
+		}
+	}
+
+	if(keyIsDown(39)){
+
+		if(player.x - 10 <= width){
+			player.x += 10;
+		}else{
+			player.x = width;
+		}
+	}
+
+	if(keyIsDown(32)){
+		shoot.push(Shoot({}));
+	}
+
+
+	shoot = shoot.filter(function(shoot){return shoot.active});
+
+	shoot.forEach(function(shoot){
+		shoot.update();
+		shoot.draw();
+
+		//var d = dist(shoot.x, shoot.y, enem.x, enem.y);
+		//console.log(d);
+	});
+	detectcol =  get(enem.x, enem.y);
+	if (detectcol[0] == 0 && detectcol[1] == 0 && detectcol[2] == 255){
+		console.log(detectcol);	
+	}
+	console.log(Enemies.x)
+}
